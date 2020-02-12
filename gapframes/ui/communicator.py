@@ -9,6 +9,7 @@ from PySide2 import QtCore
 
 class Communicator(QtCore.QObject):
     fetch_panel = QtCore.Signal()
+    update_gap_list = QtCore.Signal()
     cycle_next = QtCore.Signal()
     cycle_prev = QtCore.Signal()
     cycle_gap_distance = QtCore.Signal()
@@ -25,6 +26,9 @@ class Communicator(QtCore.QObject):
 
     def emit_cycle_gap_distance(self):
         self.cycle_gap_distance.emit()
+
+    def emit_update_gap_list(self):
+        self.update_gap_list.emit()
 
     def report_message(self, msg, in_shell=True, in_nuke=True):
         kwargs = {"in_shell": in_shell, "in_nuke": in_nuke}

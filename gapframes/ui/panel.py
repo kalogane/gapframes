@@ -84,7 +84,6 @@ class GapframesPanel(QtWidgets.QMainWindow):
         ui.gapsList_sorting_comboBox.currentIndexChanged.connect(self.sorting_handler)
         ui.gapsList_list_listWidget.currentRowChanged.connect(self.update_cur_gapframe)
         ui.gapsList_list_listWidget.itemDoubleClicked.connect(self.jump_to_gapframe)
-        ui.gapsList_list_listWidget.itemEntered.connect(self.jump_to_gapframe)
 
     def _connect_communicator(self, comm):
         """
@@ -95,6 +94,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
         """
         try:
             comm.fetch_panel.connect(self.show)
+            comm.update_gap_list(self.repopulate_gaps_list)
             comm.relay_message.connect(lambda msg, kwargs: self.report_message(msg, **kwargs))
             comm.cycle_next.connect(self.cycle_next_item)
             comm.cycle_prev.connect(self.cycle_previous_item)
