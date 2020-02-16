@@ -1,8 +1,7 @@
 """
 The Communicator is a "middle man" class, used to communicate with
-the necessary parts of the active Gapframes Panel.
-Primarily used to safely attach some of the panel functionalities
-to Nuke hotkeys.
+the necessary parts of an active Gapframes Panel.
+Primarily used to safely attach some of the panel functionalities to Nuke hotkeys.
 """
 
 from PySide2 import QtCore

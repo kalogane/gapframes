@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>632</width>
-    <height>710</height>
+    <width>552</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -712,7 +712,7 @@
           <item row="1" column="2">
            <widget class="QLabel" name="hotkeys_cycleNextItem_label">
             <property name="text">
-             <string>Cycle Next item</string>
+             <string>Cycle Next Item</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -735,7 +735,7 @@
           <item row="2" column="2">
            <widget class="QLabel" name="hotkeys_cyclePrevItem_label">
             <property name="text">
-             <string>Cycle Previous item</string>
+             <string>Cycle Previous Item</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
