@@ -20,7 +20,7 @@ def _clean_input(input_text):
 
     return input_items
 
-# TODO: implement with Communicator
+# TODO: implement with Communicator?
 def get_ui_item_names(ui_obj):
     """
     Find all UI item names that follow this naming convention:
@@ -125,7 +125,7 @@ def get_scan_parameters(ui):
     """
     get_nodes_func = determine_get_nodes_func(ui)
     specified_nodes = ui.nodeNames_input_lineEdit.text()
-    specified_nodes = _clean_input(specified_nodes.text()) if specified_nodes else []
+    specified_nodes = _clean_input(specified_nodes) if specified_nodes else []
     # If specified_nodes is irrelevant to the get_nodes_func, they get ignored anyway.
     nodes = get_nodes_func(specified_nodes)
 

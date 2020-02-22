@@ -1,3 +1,4 @@
+import os
 import traceback
 from datetime import datetime
 from operator import itemgetter
@@ -7,9 +8,10 @@ from PySide2 import QtCore, QtGui, QtUiTools, QtWidgets
 
 # Gapframes imports
 import panel_utils as pu
-from gapframes.constants import PANEL_UI_PATH
-from gapframes.gaps_container import GapsContainer
 from gapframes import utils
+from gapframes.constants import BUTTON_ORDER, HOTKEYS, PANEL_UI_PATH
+from gapframes.gaps_container import GapsContainer
+from gapframes.ui.communicator import COMMUNICATOR
 
 
 class GapframesPanel(QtWidgets.QMainWindow):
@@ -19,6 +21,8 @@ class GapframesPanel(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(GapframesPanel, self).__init__(parent)
         self._gaps_container = GapsContainer()
+        # Save a reference of which hotkeys were last set - {menu_button_name: hotkey}
+        self.hotkeys = {}
         self._init_ui()
 
     def _toggle_window_stays_on_top(self, force_state=None):
@@ -30,39 +34,88 @@ class GapframesPanel(QtWidgets.QMainWindow):
         stay_on_top_hint = QtCore.Qt.WindowStaysOnTopHint
         set_hint = (cur_flags | stay_on_top_hint)
         remove_hint = (cur_flags & ~stay_on_top_hint)
-        
+
         # Check current state and set new flags to opposite state, or the forced state.
         cur_state = bool(cur_flags & stay_on_top_hint)
         new_state = force_state if isinstance(force_state, bool) else not cur_state
-        new_flags = set_hint if force_state is True else remove_hint
-        
+        new_flags = set_hint if new_state is True else remove_hint
+
         self.ui.setWindowFlags(new_flags)
         self.ui.show()
-        import time
-        time.sleep(0.5)
+
+    def _add_keybindings(self, on_ui_init=False):
+        menu = nuke.toolbar("Nuke").menu("Viewer")
+        menu.addSeparator()
+
+        for button_name in BUTTON_ORDER:
+            settings = HOTKEYS.get(button_name)
+            if not settings:
+                continue
+
+            default_hotkey = settings.get("hotkey", "")
+            func = getattr(COMMUNICATOR, settings.get("func", ""))
+            ui_elem = getattr(self.ui, settings.get("ui_elem", ""))
+
+            new_hotkey = ui_elem.text()
+            # TODO: may not want to force default_hotkey on_ui_init after preferences are implemented
+            hotkey = (new_hotkey or default_hotkey) if on_ui_init else new_hotkey
+            if hotkey == self.hotkeys.get(button_name):
+                # If hotkey is the same, do nothing.
+                continue
+
+            menu_button_name = "Gapframes: "+button_name
+            menu_item = menu.findItem(menu_button_name)
+            if menu_item:
+                menu_item.setShortcut(hotkey)
+            else:
+                menu.addCommand(menu_button_name, func, hotkey, shortcutContext=1)
+
+            self.hotkeys[button_name] = hotkey
+            ui_elem.setText(hotkey)
 
     def _init_ui(self):
+        # Do a stat check to make sure the UI file can be accessed, error if not because we need it.
+        try:
+            os.stat(PANEL_UI_PATH)
+        except OSError:
+            msg = "UI file necessary for Gapframes was not found. Is the tool installed correctly?"
+            COMMUNICATOR.report_message_with_error(msg, error_type=OSError)
+
         self.ui = QtUiTools.QUiLoader().load(PANEL_UI_PATH, self)
         # self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         self._toggle_window_stays_on_top(True)
         self._setup_input_sanitization()
+        self._add_keybindings(on_ui_init=True)
         self._pass_connections()
         self.update_ui()
 
-    def _setup_input_sanitization(self):        
-        input_objects = (
+    def _setup_input_sanitization(self):
+        node_knob_input_objects = (
             self.ui.nodeNames_input_lineEdit,
             self.ui.knobSection_allowedKnobs_lineEdit,
             self.ui.knobSection_excludedKnobs_lineEdit
         )
+        hotkey_input_objects = (
+            self.ui.hotkeys_openPanel_lineEdit,
+            self.ui.hotkeys_updateList_lineEdit,
+            self.ui.hotkeys_cycleGapDistances_lineEdit,
+            self.ui.hotkeys_cycleNextItem_lineEdit,
+            self.ui.hotkeys_cyclePrevItem_lineEdit
+        )
 
         # Only allow nums, letters, underscores, commas and spaces.
-        regex_obj = QtCore.QRegExp(r"[\d\w_, ]*")
-        validator = QtGui.QRegExpValidator(regex_obj, self)
-        for obj in input_objects:
-            obj.setValidator(validator)
+        node_knob_regex = QtCore.QRegExp(r"[\d\w_, ]*")
+        node_knob_validator = QtGui.QRegExpValidator(node_knob_regex, self)
+        for obj in node_knob_input_objects:
+            obj.setValidator(node_knob_validator)
             # inputRejected signal missing, but is in PySide2 docs??
             # obj.inputRejected.connect(_rejection_message)
+
+        # Only allow nums, letters, +, ^, # - for Nuke hotkeys.
+        hotkey_regex = QtCore.QRegExp(r"[\d\w+#^]*")
+        hotkey_validator = QtGui.QRegExpValidator(hotkey_regex, self)
+        for obj in hotkey_input_objects:
+            obj.setValidator(hotkey_validator)
 
     def _pass_connections(self):
         """
@@ -84,23 +137,11 @@ class GapframesPanel(QtWidgets.QMainWindow):
         ui.gapsList_sorting_comboBox.currentIndexChanged.connect(self.sorting_handler)
         ui.gapsList_list_listWidget.currentRowChanged.connect(self.update_cur_gapframe)
         ui.gapsList_list_listWidget.itemDoubleClicked.connect(self.jump_to_gapframe)
-        ui.gapsList_list_listWidget.itemEntered.connect(self.jump_to_gapframe)
 
-    def _connect_communicator(self, comm):
-        """
-        Connect external signalling for communication with the Panel.
-
-        Args:
-            comm (Communicator obj): the Communicator class from communicator.py
-        """
-        try:
-            comm.fetch_panel.connect(self.show)
-            comm.relay_message.connect(lambda msg, kwargs: self.report_message(msg, **kwargs))
-            comm.cycle_next.connect(self.cycle_next_item)
-            comm.cycle_prev.connect(self.cycle_previous_item)
-            comm.cycle_gap_distance.connect(self._cycle_gap_distance_value)
-        except AttributeError:
-            self.report_message(traceback.format_exc())
+        hotkey_ui_items = [hotkey_settings.get("ui_elem") for hotkey_settings in HOTKEYS.values()]
+        for item in hotkey_ui_items:
+            ui_elem = getattr(self.ui, item)
+            ui_elem.editingFinished.connect(self._add_keybindings)
 
     def _gap_distance_updater(self, value):
         """
@@ -143,7 +184,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
                 if gap_start <= cur_frame <= gap_end:
                     # Found the gap where current Viewer frame is.
                     break
-            
+
             # Check if current frame is outside of known Keyframe gaps.
             lowest_known = min(self._gaps_container, key=itemgetter("start"))
             highest_known = max(self._gaps_container, key=itemgetter("end"))
@@ -151,7 +192,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
                 ind = self._gaps_container.index(lowest_known)
             elif cur_frame >= highest_known.get("end"):
                 ind = self._gaps_container.index(highest_known)
-            
+
             list_widget.setCurrentRow(ind)
 
     def _cycle_gap_distance_value(self):
@@ -170,7 +211,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
             cur_ind = set_points.index(gap_distance)
             new_ind = 0
             if cur_ind < len(set_points)-1:
-                new_ind = cur_ind + 1 
+                new_ind = cur_ind + 1
             new_distance = set_points[new_ind]
 
         gap_distance_spinbox.setValue(new_distance)
@@ -181,6 +222,23 @@ class GapframesPanel(QtWidgets.QMainWindow):
     def hide(self):
         self.ui.hide()
 
+    def connect_communicator(self, comm):
+        """
+        Connect external signalling for communication with the Panel.
+
+        Args:
+            comm (Communicator obj): the Communicator class from communicator.py
+        """
+        try:
+            comm.fetch_panel.connect(self.show)
+            comm.update_gap_list.connect(self.repopulate_gaps_list)
+            comm.relay_message.connect(lambda msg, kwargs: self.report_message(msg, **kwargs))
+            comm.cycle_next.connect(self.cycle_next_item)
+            comm.cycle_prev.connect(self.cycle_previous_item)
+            comm.cycle_gap_distance.connect(self._cycle_gap_distance_value)
+        except AttributeError:
+            self.report_message(traceback.format_exc())
+
     # TODO: Is this func necessary? Does anything need "updating", either at startup or otherwise?
     # Maybe refactor to be used for "auto update" checkbox.
     def update_ui(self):
@@ -188,7 +246,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
         pass
 
     def report_message(self, msg, in_shell=True, in_nuke=True):
-        print "{0}: {1}".format(self.ui.windowTitle(), msg)
+        print("{0}: {1}".format(self.ui.windowTitle(), msg))
         if in_shell:
             if not isinstance(msg, basestring):
                 msg = "{0}".format(msg)
@@ -208,7 +266,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
             do_sort (bool, optional): whether to update the sorting of the items in the internal container
         """
         if update_container:
-            nodes, allow_knobs, exclude_knobs, boundary_in, boundary_out =\
+            nodes, allow_knobs, exclude_knobs, boundary_in, boundary_out = \
                 pu.get_scan_parameters(self.ui)
             all_gaps = utils.find_all_gaps(nodes, allow_knobs, exclude_knobs,
                                            boundary_in, boundary_out)
