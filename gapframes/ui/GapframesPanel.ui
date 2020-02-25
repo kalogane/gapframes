@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
-    <height>674</height>
+    <width>520</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -642,6 +642,9 @@
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hotkey for Cycling between every 25% of the Gap Distance slider.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="text">
+             <string>alt+e</string>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -681,6 +684,9 @@
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hotkey for opening the Panel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="text">
+             <string>alt+q</string>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -705,7 +711,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hotkey for manually updating the Gaps List items.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string/>
+             <string>alt+r</string>
             </property>
            </widget>
           </item>
@@ -730,6 +736,9 @@
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hotkey for Cycling to the next item on the Gaps List.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="text">
+             <string>alt+d</string>
+            </property>
            </widget>
           </item>
           <item row="2" column="2">
@@ -752,6 +761,9 @@
            <widget class="QLineEdit" name="hotkeys_cyclePrevItem_lineEdit">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hotkey for Cycling to the previous item on the Gaps List.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>alt+a</string>
             </property>
            </widget>
           </item>
