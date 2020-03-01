@@ -2,7 +2,7 @@ import nuke
 
 from constants import NUM_TYPES
 
-from ui.communicator import COMMUNICATOR
+from gapframes.ui.communicator import COMMUNICATOR
 
 
 # ============================================================================================
