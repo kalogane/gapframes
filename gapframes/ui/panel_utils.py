@@ -1,9 +1,11 @@
+import inspect
 import re
 from PySide2 import QtWidgets
 
 import nuke
 
 from communicator import COMMUNICATOR
+from gapframes.constants import NODE_SELECTION_RADIO_BUTTONS
 
 
 def _clean_input(input_text):
@@ -20,7 +22,6 @@ def _clean_input(input_text):
 
     return input_items
 
-# TODO: implement with Communicator?
 def get_ui_item_names(ui_obj):
     """
     Find all UI item names that follow this naming convention:
@@ -32,9 +33,8 @@ def get_ui_item_names(ui_obj):
     Returns:
         list: list of strings of UI items
     """
+    # The pattern will match the naming convention of the Qt items.
     alphanum_ptn = r"[a-zA-Z0-9]" # Alphanumerical match
-
-    # This pattern will match the naming convention of the Qt items.
     re_ptn = r"^({0}+)_({0}+)_({0}+)_?({0}*)$".format(alphanum_ptn)
     return [n for n,_ in inspect.getmembers(ui_obj) if re.match(re_ptn, n) and not n.startswith("__")]
 
@@ -82,10 +82,6 @@ def determine_get_nodes_func(ui):
         or
         NoneType: if no function was matched to the corresponding radio button option
     """
-    # TODO: move these to constants.py (maybe?)
-    radio_buttons = ("nodeSection_propertiesPanel_radioButton",
-                     "nodeSection_selectedNodes_radioButton",
-                     "nodeSection_specificNodes_radioButton")
     nodes_func_map = {
         "nodeSection_propertiesPanel_radioButton": get_nodes_in_properties_bin,
         "nodeSection_selectedNodes_radioButton": get_selected_nodes,
@@ -93,7 +89,7 @@ def determine_get_nodes_func(ui):
     }
 
     button_name = ""
-    for button_name in radio_buttons:
+    for button_name in NODE_SELECTION_RADIO_BUTTONS:
         button = ui.findChild(QtWidgets.QRadioButton, button_name)
         if not button:
             continue

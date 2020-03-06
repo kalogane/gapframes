@@ -10,8 +10,8 @@ from PySide2 import QtCore, QtGui, QtUiTools, QtWidgets
 # Gapframes imports
 import gapframes.ui.panel_utils as pu
 from gapframes import utils
-from gapframes.constants import (BUTTON_ORDER, HOTKEYS, PANEL_UI_PATH, PREFERENCES_PATH, NODE_SELECTION_RADIO_BUTTONS,
-                                 PREFERENCES_TARGETS, HOTKEY_UI_ITEMS)
+from gapframes.constants import (BUTTON_ORDER, HOTKEYS, PANEL_UI_PATH, PREFERENCES_PATH,
+                                 NODE_SELECTION_RADIO_BUTTONS, PREFERENCES_TARGETS, HOTKEY_UI_ITEMS)
 from gapframes.gaps_container import GapsContainer
 from gapframes.ui.communicator import COMMUNICATOR
 
@@ -34,8 +34,8 @@ class GapframesPanel(QtWidgets.QMainWindow):
         self._init_ui()
 
     def _init_ui(self):
-        # Do a stat check to make sure the UI file can be accessed, error if not because we need it.
         try:
+            # Do a stat check to make sure the UI file can be accessed, error if not because we need it.
             os.stat(PANEL_UI_PATH)
         except OSError:
             msg = "UI file necessary for Gapframes was not found. Is the tool installed correctly?"
@@ -55,7 +55,6 @@ class GapframesPanel(QtWidgets.QMainWindow):
         self._pass_signal_connections()
         self.restore_preferences()
         self._add_hotkeys()
-        # self.update_ui()
 
     def _toggle_window_stays_on_top(self, force_state=None):
         """
@@ -229,6 +228,10 @@ class GapframesPanel(QtWidgets.QMainWindow):
 
         gap_distance_spinbox.setValue(new_distance)
 
+    def _print_ui_item_names(self):
+        item_names = pu.get_ui_item_names(self.ui)
+        self.report_message(item_names, in_nuke=False)
+
     def closeEvent(self, event):
         self.save_all_preferences()
         super(GapframesPanel, self).closeEvent(event)
@@ -247,14 +250,9 @@ class GapframesPanel(QtWidgets.QMainWindow):
             comm.cycle_next.connect(self.cycle_next_item)
             comm.cycle_prev.connect(self.cycle_previous_item)
             comm.cycle_gap_distance.connect(self._cycle_gap_distance_value)
+            comm.print_ui_items.connect(self._print_ui_item_names)
         except AttributeError:
             self.report_message(traceback.format_exc())
-
-    # TODO: Is this func necessary? Does anything need "updating", either at startup or otherwise?
-    # Maybe refactor to be used for "auto update" checkbox.
-    def update_ui(self):
-        # self.repopulate_gaps_list()
-        pass
 
     def report_message(self, msg, in_shell=True, in_nuke=True):
         print("{0}: {1}".format(self.ui.windowTitle(), msg))
