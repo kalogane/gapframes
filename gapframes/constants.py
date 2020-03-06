@@ -7,6 +7,7 @@ PANEL_UI_PATH = os.path.join(gapframes_path, "ui", "GapframesPanel.ui")
 PREFERENCES_PATH = os.path.expanduser("~/.nuke/gapframes_preferences.ini")
 
 NUM_TYPES = (int, float)
+SAMPLE_GAPS_CONTAINER = {"start": NUM_TYPES, "end": NUM_TYPES, "length": NUM_TYPES, "repr": str}
 NODE_SELECTION_RADIO_BUTTONS = ["nodeSection_propertiesPanel_radioButton",
                                 "nodeSection_selectedNodes_radioButton",
                                 "nodeSection_specificNodes_radioButton"]

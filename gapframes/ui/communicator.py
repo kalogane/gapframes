@@ -7,6 +7,7 @@ Primarily used to safely attach some of the panel functionalities to Nuke hotkey
 from PySide2 import QtCore
 
 class Communicator(QtCore.QObject):
+    print_ui_items = QtCore.Signal()
     fetch_panel = QtCore.Signal()
     update_gap_list = QtCore.Signal()
     cycle_next = QtCore.Signal()
@@ -40,5 +41,8 @@ class Communicator(QtCore.QObject):
         except error_type:
             self.report_message(msg, in_shell=in_shell, in_nuke=in_nuke)
             raise
+
+    def emit_print_ui_items(self):
+        self.print_ui_items.emit()
 
 COMMUNICATOR = Communicator()
