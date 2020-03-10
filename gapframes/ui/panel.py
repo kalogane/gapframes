@@ -10,8 +10,8 @@ from PySide2 import QtCore, QtGui, QtUiTools, QtWidgets
 # Gapframes imports
 import gapframes.ui.panel_utils as pu
 from gapframes import utils
-from gapframes.constants import (BUTTON_ORDER, HOTKEYS, PANEL_UI_PATH, PREFERENCES_PATH,
-                                 NODE_SELECTION_RADIO_BUTTONS, PREFERENCES_TARGETS, HOTKEY_UI_ITEMS)
+from gapframes.constants import (BUTTON_ORDER, HOTKEYS, PANEL_UI_PATH, PREFERENCES_PATH, PREFERENCES_TARGETS,
+                                 NODE_SELECTION_RADIO_BUTTONS, HOTKEY_UI_ITEMS, PANEL_OBJECT_NAME)
 from gapframes.gaps_container import GapsContainer
 from gapframes.ui.communicator import COMMUNICATOR
 
@@ -23,7 +23,7 @@ class GapframesPanel(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
         super(GapframesPanel, self).__init__(parent)
-        self.setObjectName("GapframesPanel")
+        self.setObjectName(PANEL_OBJECT_NAME)
         self.resize(540, 655)
 
         self._gaps_container = GapsContainer()

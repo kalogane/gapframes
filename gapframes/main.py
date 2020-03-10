@@ -1,24 +1,23 @@
 """
 Main actions live here.
 """
+from PySide2.QtWidgets import QApplication
 
 # gapframes imports
+from gapframes.constants import PANEL_OBJECT_NAME
 from gapframes.ui.communicator import COMMUNICATOR
 from gapframes.ui.panel import GapframesPanel
 
-PANEL = None
 
-# TODO: need to implement a way of re-initializing the Panel if fully closed and destroyed.
 def open_panel():
-    global PANEL
-    if PANEL is None:
-        PANEL = GapframesPanel()
-        PANEL.connect_communicator(COMMUNICATOR)
-    PANEL.show()
+    active_widgets = [w.objectName() for w in QApplication.instance().allWidgets()]
+    if PANEL_OBJECT_NAME in active_widgets:
+        COMMUNICATOR.show_gapframes_panel()
+        return
 
-# TODO: swap with open_panel above for regular use, add the keybinds here too
-# def open_panel():
-#     COMMUNICATOR.show_gapframes_panel()
+    panel = GapframesPanel()
+    panel.connect_communicator(COMMUNICATOR)
+    panel.show()
 
 def cycle_next_gapframe():
     COMMUNICATOR.emit_cycle_next()
