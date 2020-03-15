@@ -4,7 +4,7 @@ from PySide2 import QtWidgets
 
 import nuke
 
-from communicator import COMMUNICATOR
+from gapframes.ui.communicator import COMMUNICATOR
 from gapframes.constants import NODE_SELECTION_RADIO_BUTTONS
 
 
@@ -36,7 +36,7 @@ def get_ui_item_names(ui_obj):
     # The pattern will match the naming convention of the Qt items.
     alphanum_ptn = r"[a-zA-Z0-9]" # Alphanumerical match
     re_ptn = r"^({0}+)_({0}+)_({0}+)_?({0}*)$".format(alphanum_ptn)
-    return [n for n,_ in inspect.getmembers(ui_obj) if re.match(re_ptn, n) and not n.startswith("__")]
+    return [n for n, _ in inspect.getmembers(ui_obj) if re.match(re_ptn, n) and not n.startswith("__")]
 
 # Node targeting funcs.
 def get_selected_nodes(*args):
@@ -56,7 +56,6 @@ def get_nodes_in_properties_bin(*args):
     if not nodes:
         msg = "No nodes' Properties are currently open."
         COMMUNICATOR.report_message_with_error(msg, error_type=ValueError)
-
     return nodes
 
 def get_specific_nodes(node_names, *args):
@@ -100,7 +99,7 @@ def determine_get_nodes_func(ui):
     get_nodes_func = nodes_func_map.get(button_name)
     if not callable(get_nodes_func):
         msg = "Failed to retrieve relevant function for button '{0}'."
-        COMMUNICATOR.report_message(msg.format(button_name))
+        COMMUNICATOR.report_message_with_error(msg.format(button_name), error_type=RuntimeError)
     
     return get_nodes_func
 
@@ -127,7 +126,7 @@ def get_scan_parameters(ui):
 
     allow_knobs = ui.knobSection_allowedKnobs_lineEdit.text()
     exclude_knobs = ui.knobSection_excludedKnobs_lineEdit.text()
-    # If field left empty, use None.
+    # If field(s) left empty, use None.
     allow_knobs = _clean_input(allow_knobs.text()) if allow_knobs else None
     exclude_knobs = _clean_input(exclude_knobs.text()) if exclude_knobs else None
 

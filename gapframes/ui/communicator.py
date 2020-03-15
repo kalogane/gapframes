@@ -36,12 +36,9 @@ class Communicator(QtCore.QObject):
         self.relay_message.emit(msg, kwargs)
 
     def report_message_with_error(self, msg, in_shell=True, in_nuke=True,
-                                  error_type=None):
-        try:
-            raise error_type(msg)
-        except error_type:
-            self.report_message(msg, in_shell=in_shell, in_nuke=in_nuke)
-            raise
+                                  error_type=RuntimeError):
+        self.report_message(msg, in_shell=in_shell, in_nuke=in_nuke)
+        raise error_type(msg)
 
     def emit_print_ui_items(self):
         self.print_ui_items.emit()

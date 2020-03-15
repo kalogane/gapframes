@@ -9,15 +9,18 @@ from gapframes.ui.communicator import COMMUNICATOR
 from gapframes.ui.panel import GapframesPanel
 
 
-def open_panel():
-    active_widgets = [w.objectName() for w in QApplication.instance().allWidgets()]
-    if PANEL_OBJECT_NAME in active_widgets:
-        COMMUNICATOR.show_gapframes_panel()
-        return
-
+def _initialize_panel():
     panel = GapframesPanel()
     panel.connect_communicator(COMMUNICATOR)
-    panel.show()
+
+_initialize_panel()
+
+def open_panel():
+    active_widgets = [w.objectName() for w in QApplication.instance().allWidgets()]
+    if PANEL_OBJECT_NAME not in active_widgets:
+        # If panel was somehow destroyed, re-initialize it.
+        _initialize_panel()
+    COMMUNICATOR.show_gapframes_panel()
 
 def cycle_next_gapframe():
     COMMUNICATOR.emit_cycle_next()

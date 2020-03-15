@@ -44,7 +44,7 @@ class GapsContainer(list):
         start = item[0]
         end = item[1]
 
-        error_msg = "Frame numbers should be int/float."
+        error_msg = "Frame numbers should be one of {0}.".format(NUM_TYPES)
         assert all((isinstance(start, NUM_TYPES), isinstance(end, NUM_TYPES))), error_msg
 
         assert end > start, "End number should be higher than start number."

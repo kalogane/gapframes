@@ -9,7 +9,7 @@ from gapframes.ui.communicator import COMMUNICATOR
 # Keyframe utils.
 
 def scan_node_for_keyframes(node, allow_knobs=None, exclude_knobs=None,
-                                  boundary_in=None, boundary_out=None):
+                            boundary_in=None, boundary_out=None):
     """
     Args:
         node (Nuke Node): Nuke Node object
@@ -49,7 +49,7 @@ def scan_node_for_keyframes(node, allow_knobs=None, exclude_knobs=None,
     return sorted(all_keys)
 
 def get_all_key_frame_nums(nodes, allow_knobs=None, exclude_knobs=None,
-                                  boundary_in=None, boundary_out=None):
+                           boundary_in=None, boundary_out=None):
     """
     Find all key frame numbers for each node in nodes.
 

@@ -50,29 +50,37 @@ class GapframesPanel(QtWidgets.QMainWindow):
         # This is necessary so that this class can override the closeEvent from the UI.
         self.setCentralWidget(self.ui)
 
-        self._toggle_window_stays_on_top(True)
+        self.setMaximumSize(self.ui.maximumSize())
+        self.setMinimumSize(self.ui.minimumSize())
+
+        self._toggle_window_stays_on_top(force_state=True, force_show=False)
         self._setup_input_sanitization()
         self._pass_signal_connections()
         self.restore_preferences()
         self._add_hotkeys()
 
-    def _toggle_window_stays_on_top(self, force_state=None):
+    def _toggle_window_stays_on_top(self, force_state=None, force_show=True):
         """
         Toggle whether the window should stay on top.
-        Input is optional, but can be forced to True or False.
+
+        Args:
+            force_state (bool, optional): Whether to force window to stay on top or not
+            force_show (bool, optional): Toggling window flags hides the window, this function can re-show it unless
+                                         specified not to
         """
         cur_flags = self.windowFlags()
         stay_on_top_hint = QtCore.Qt.WindowStaysOnTopHint
         set_hint = (cur_flags | stay_on_top_hint)
         remove_hint = (cur_flags & ~stay_on_top_hint)
 
-        # Check current state and set new flags to opposite state, or the forced state.
+        # Check current state and set new flags to the forced state, or to the opposite state.
         cur_state = bool(cur_flags & stay_on_top_hint)
         new_state = force_state if isinstance(force_state, bool) else not cur_state
         new_flags = set_hint if new_state is True else remove_hint
 
         self.setWindowFlags(new_flags)
-        self.show()
+        if force_show:
+            self.show()
 
     def _add_hotkeys(self):
         menu = nuke.toolbar("Nuke").menu("Viewer")
@@ -83,7 +91,8 @@ class GapframesPanel(QtWidgets.QMainWindow):
             if not settings:
                 continue
 
-            func = getattr(COMMUNICATOR, settings.get("func", ""))
+            fallback_msg = "nuke.message('Failed to find func to use for button \"{0}\".'".format(button_name)
+            func = getattr(COMMUNICATOR, settings.get("func", fallback_msg))
             ui_elem = getattr(self.ui, settings.get("ui_elem", ""))
 
             hotkey = ui_elem.text()
@@ -263,9 +272,12 @@ class GapframesPanel(QtWidgets.QMainWindow):
             shell_msg = "{0} ({1}): {2}".format(self.ui.windowTitle(), timestamp, msg)
             nuke.tprint(shell_msg)
         if in_nuke:
-            self.hide()
+            visible = self.isVisible()
+            if visible:
+                self.hide()
             nuke.message(msg)
-            self.show()
+            if visible:
+                self.show()
 
     def repopulate_gaps_list(self, update_container=True, do_sort=True):
         """
@@ -276,10 +288,8 @@ class GapframesPanel(QtWidgets.QMainWindow):
         """
         try:
             if update_container:
-                nodes, allow_knobs, exclude_knobs, boundary_in, boundary_out = \
-                    pu.get_scan_parameters(self.ui)
-                all_gaps = utils.find_all_gaps(nodes, allow_knobs, exclude_knobs,
-                                               boundary_in, boundary_out)
+                nodes, allow_knobs, exclude_knobs, boundary_in, boundary_out = pu.get_scan_parameters(self.ui)
+                all_gaps = utils.find_all_gaps(nodes, allow_knobs, exclude_knobs, boundary_in, boundary_out)
                 self._gaps_container = GapsContainer(all_gaps)  # Replace container.
         except Exception:
             # If any error, clear the Gaps List.
