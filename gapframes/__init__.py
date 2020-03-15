@@ -1,8 +1,6 @@
 """
 gapframes is a utility tool for navigating gaps between keyframes in Nuke.
 """
-import utils, ui
-from main import (open_panel, cycle_next_gapframe,
-                  cycle_prev_gapframe, cycle_gap_distance)
-
-# TODO: Register custom panel at import time
+from gapframes import utils, ui
+from gapframes.main import (open_panel, update_gap_list,
+                            cycle_next_gapframe, cycle_prev_gapframe, cycle_gap_distance)

@@ -298,22 +298,12 @@
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="gapsList_settings_layout">
             <item>
-             <widget class="QCheckBox" name="gapsList_autoUpdate_checkBox">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable automatic updating of the list whenever the Viewer timeline changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Auto Update</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <spacer name="gapsList_settings_spacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeType">
-               <enum>QSizePolicy::MinimumExpanding</enum>
+               <enum>QSizePolicy::Expanding</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -908,7 +898,6 @@
   <tabstop>extraOptions_scanBoundary_spinBox</tabstop>
   <tabstop>extraOptions_gapDistance_spinBox</tabstop>
   <tabstop>extraOptions_gapDistance_slider</tabstop>
-  <tabstop>gapsList_autoUpdate_checkBox</tabstop>
   <tabstop>gapsList_sorting_comboBox</tabstop>
   <tabstop>gapsList_update_pushButton</tabstop>
   <tabstop>gapsList_cycleNext_pushButton</tabstop>

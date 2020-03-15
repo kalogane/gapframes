@@ -1,6 +1,7 @@
 from operator import itemgetter
 
-from constants import NUM_TYPES
+from gapframes.constants import NUM_TYPES, SAMPLE_GAPS_CONTAINER
+
 
 class GapsContainer(list):
     """
@@ -32,12 +33,10 @@ class GapsContainer(list):
         Check that an incoming item is a dictionary with a signature as created by the create_entry function,
         or that it contains valid numbers for start and end of a range.
         """
-        if isinstance(item, dict):  # TODO: revisit - move sample_dict in constants.py?
-            sample_dict = {"start": NUM_TYPES, "end": NUM_TYPES, "length": NUM_TYPES, "repr": str}
-
+        if isinstance(item, dict):
             error_msg = ("Missing keys or invalid values in input dict. "
                          "Please refer to the create_entry docstring for valid signature.")
-            for key, valid_types in sample_dict.items():
+            for key, valid_types in SAMPLE_GAPS_CONTAINER.items():
                 assert item.has_key(key) and isinstance(item.get(key), valid_types), error_msg
             return True  # Valid dict entry.
 
@@ -45,7 +44,7 @@ class GapsContainer(list):
         start = item[0]
         end = item[1]
 
-        error_msg = "Frame numbers should be int/float."
+        error_msg = "Frame numbers should be one of {0}.".format(NUM_TYPES)
         assert all((isinstance(start, NUM_TYPES), isinstance(end, NUM_TYPES))), error_msg
 
         assert end > start, "End number should be higher than start number."

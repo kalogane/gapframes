@@ -6,7 +6,9 @@ Primarily used to safely attach some of the panel functionalities to Nuke hotkey
 
 from PySide2 import QtCore
 
+
 class Communicator(QtCore.QObject):
+    print_ui_items = QtCore.Signal()
     fetch_panel = QtCore.Signal()
     update_gap_list = QtCore.Signal()
     cycle_next = QtCore.Signal()
@@ -34,11 +36,12 @@ class Communicator(QtCore.QObject):
         self.relay_message.emit(msg, kwargs)
 
     def report_message_with_error(self, msg, in_shell=True, in_nuke=True,
-                                             error_type=None):
-        try:
-            raise error_type(msg)
-        except error_type:
-            self.report_message(msg, in_shell=in_shell, in_nuke=in_nuke)
-            raise
+                                  error_type=RuntimeError):
+        self.report_message(msg, in_shell=in_shell, in_nuke=in_nuke)
+        raise error_type(msg)
+
+    def emit_print_ui_items(self):
+        self.print_ui_items.emit()
+
 
 COMMUNICATOR = Communicator()
